@@ -12,6 +12,7 @@ from langchain.retrievers import ContextualCompressionRetriever
 CHROMA_DIR = "./chroma_langchain_db"
 retrieval_qa_chat_prompt = hub.pull("langchain-ai/retrieval-qa-chat")
 
+# Query answer from every documents 
 def query_each_document(user_query):
     embedding_model = OpenAIEmbeddings()
     vectordb = Chroma(
@@ -21,7 +22,6 @@ def query_each_document(user_query):
     )
     llm = ChatOpenAI(temperature=0.3)
 
-    # Get all document IDs in the vector store
     all_docs = vectordb.get()['metadatas']
     print('Matadata: ', all_docs)
     document_ids = list(set([doc['document_id'] for doc in all_docs]))
@@ -50,7 +50,6 @@ def query_each_document(user_query):
             result = retrieval_chain.invoke({"input": user_query})
             print("result: ", result)
 
-            # # Grab citation locations
             doc = result["context"][0]
             meta = doc.metadata
             document_id = meta.get("document_id")
@@ -65,7 +64,8 @@ def query_each_document(user_query):
         return results
     except Exception as e:
         print(f"Error: {str(e)}")
-
+        
+# Identify multiple themes from answers of different documents
 def identify_themes(document_answers):
     llm = ChatOpenAI(temperature=0.2, model="gpt-4")
 

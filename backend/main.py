@@ -19,7 +19,7 @@ class Query(BaseModel):
 FILE_DIRECTORY = "uploads"
 os.makedirs(FILE_DIRECTORY, exist_ok=True)
 
-
+# Fetch single doc
 @app.get("/file/{filename}")
 async def get_file(filename: str) -> FileResponse:
     """
@@ -37,7 +37,7 @@ async def get_file(filename: str) -> FileResponse:
         raise HTTPException(status_code=404, detail="File not found")
     return FileResponse(file_path)
 
-
+# Fetch all documents
 @app.get("/files")
 async def list_files() -> JSONResponse:
     """
@@ -49,7 +49,7 @@ async def list_files() -> JSONResponse:
     files = get_files_from_directory(FILE_DIRECTORY)
     return JSONResponse(content={"files": files})
 
-# Importing data from ALPHA_VANTAGE_API to our MYSQL database
+# Upload documents and store in vectorDB
 @app.post('/upload/')
 async def upload_file(files: List[UploadFile] = File(...)) -> JSONResponse:
     """
