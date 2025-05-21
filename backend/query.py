@@ -99,7 +99,7 @@ def run_query_and_theme_synthesis(user_query):
         print(f"\nDocument: {entry['document_id']}")
         print(f"Answer: {entry['answer']}")
         print("Citations:", f"Page {entry['citations']}")
-        doc_answers += f'Document ID: {entry['document_id']} \n Answer: {entry['answer']}\n Page: {entry['citations']+1}\n\n'
+        doc_answers += f"Document ID: {entry['document_id']} \n Answer: {entry['answer']}\n Page: {entry['citations']+1}\n\n"
 
     print("\n--- Document Themes ---")
     themes = identify_themes(doc_results)
