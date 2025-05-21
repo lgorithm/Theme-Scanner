@@ -43,7 +43,7 @@ Streamlit UI  ---> FastAPI (File Upload, Query API)
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/themescanner.git
+git clone https://github.com/lgorithm/amit-biswas-wasserstoff-AiInternTask.git
 cd themescanner
 ```
 
