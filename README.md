@@ -81,12 +81,12 @@ streamlit run app.py
 ## 📦 File Structure
 
 ```text
-├── backend/
-│   ├── main.py               # FastAPI app entry
-│   ├── query.py              # Document QA + theme synthesis
-│   ├── extraction.py         # PDF/image parsing and embedding
-│   ├── utils.py              # Helpers for file detection
-│   └── ...
+
+│── main.py               # FastAPI app entry
+│── query.py              # Document QA + theme synthesis
+│── extraction.py         # PDF/image parsing and embedding
+│── utils.py              # Helpers for file detection
+│   
 ├── frontend/
 │   ├── app.py                # Streamlit page router
 │   ├── agent.py              # Query agent interface
