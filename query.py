@@ -54,11 +54,13 @@ def query_each_document(user_query):
             meta = doc.metadata
             document_id = meta.get("document_id")
             page = meta.get("page")
+            paragraph_number = meta.get('paragraph_number')
             answer = result['answer']
             results.append({
                 "document_id": document_id,
                 "answer": answer,
-                "citations": page
+                "page": page,
+                'paragraph_number': paragraph_number
             })
 
         return results
@@ -98,8 +100,8 @@ def run_query_and_theme_synthesis(user_query):
     for entry in doc_results:
         print(f"\nDocument: {entry['document_id']}")
         print(f"Answer: {entry['answer']}")
-        print("Citations:", f"Page {entry['citations']}")
-        doc_answers += f"Document ID: {entry['document_id']} \n Answer: {entry['answer']}\n Page: {entry['citations']+1}\n\n"
+        print("Citations:", f"Page: {entry['page']} Para: {entry['paragraph_number']}")
+        doc_answers += f"Document ID: {entry['document_id']} \n Answer: {entry['answer']}\n Page: {entry['page']} Para: {entry['paragraph_number']}\n\n"
 
     print("\n--- Document Themes ---")
     themes = identify_themes(doc_results)

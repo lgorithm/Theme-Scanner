@@ -6,11 +6,13 @@ from langchain_chroma import Chroma
 from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFLoader
 from utils import get_file_type
-
+import re
+from langchain.schema import Document
+                
 load_dotenv()
 embeddings = OpenAIEmbeddings()
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1400,
+    chunk_size=1000,
     chunk_overlap=100,
     length_function=len,
     is_separator_regex=False,
@@ -23,22 +25,46 @@ vector_store = Chroma(
 async def extract(files):
     for file in files:
         type = get_file_type(file['filename'])
+        doc_id = file['filename'].split('.')[0]
         if type == 'pdf':
             try:
                 loader = PyPDFLoader(
                     file_path = file['file_path'],
                     mode = "page"
                 )
-                docs = loader.load()
-                print(docs)
-                print('Length:', len(docs))
-                for doc in docs:
-                    doc.metadata["document_id"] = file['filename'].split('.')[0]
-                docs = text_splitter.split_documents(docs)
-                print('PDF Docs: ', docs)
-                print('PDF Extracted Successfully')
-                vector_store.add_documents(docs)
-                print('PDF data stored in VectorDB')
+                pages = loader.load()
+                print(pages)
+                print('Length:', len(pages))
+                all_paragraph_docs = []
+
+                for page_num, page_doc in enumerate(pages):
+                    full_text = page_doc.page_content.strip()
+
+                    raw_paragraphs = re.split(r'\.\s*\n+|\n\s*\n+', full_text)
+                    paragraph_number = 1
+
+                    for para in raw_paragraphs:
+                        clean_para = para.strip()
+                        if not clean_para:
+                            continue
+                        metadata = {
+                            'document_id': doc_id,
+                            'page': page_num + 1,  
+                            'paragraph_number': paragraph_number
+                        }
+                        all_paragraph_docs.append({
+                            'content': clean_para,
+                            'metadata': metadata
+                        })
+
+                        paragraph_number += 1
+
+                vector_store.add_documents([
+                    Document(page_content=doc['content'], metadata=doc['metadata'])
+                    for doc in all_paragraph_docs
+                ])
+                print('PDF paragraphs stored in VectorDB')
+
             except Exception as e:
                 print(f"Error: {str(e)}")
         if type == 'image':
@@ -50,8 +76,12 @@ async def extract(files):
                 cleaned_text = extracted_text.strip()
                 documents = text_splitter.create_documents(
                     [cleaned_text], 
-                    [{'page': 0, 'document_id': file['filename'].split('.')[0]}]
+                    [{'page': 1, 'document_id': file['filename'].split('.')[0]}]
                 )
+                paragraph_number = 1
+                for doc in documents:
+                    doc.metadata['paragraph_number'] = paragraph_number
+                    paragraph_number += 1
                 print('Image Docs: ', documents)
                 print('Image Extracted Successfully')
                 vector_store.add_documents(documents=documents)
